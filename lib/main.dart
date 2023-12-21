@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -162,7 +163,6 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       ),
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
@@ -192,7 +192,6 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                 // Handle Settings navigation
               },
             ),
-
           ],
         ),
       ),
@@ -218,12 +217,6 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             );
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddPropertyForm(context),
-        label: Text('Add Property'),
-        icon: Icon(Icons.add),
-        backgroundColor: Colors.green,
       ),
     );
   }
