@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Real Estate App',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blue,
       ),
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
@@ -146,8 +146,8 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Property List'),
-        backgroundColor: Colors.blue,
+        title: Text('Properties'),
+        backgroundColor: Color(0xFF013c7e),
         actions: [
           IconButton(
             icon: Icon(Icons.search),

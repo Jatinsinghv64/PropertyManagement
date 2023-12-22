@@ -131,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF013c7e),
         actions: [
           IconButton(
             onPressed: () {
@@ -163,8 +163,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         )
             : Text(
-          'Please sign in to view your profile.',
-          style: TextStyle(fontSize: 18),
+          'Please sign in to Add property as an agent.',
+          style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
         ),
       ),
       drawer: Drawer(
@@ -172,23 +172,18 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.white, // Set the drawer header color to white
               ),
-              child: Center(
-                child: Text(
-                  'Menu',
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                  ),
-                ),
+              child: Image.asset(
+                '/Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO.jpg', // Adjust the path accordingly
+                // fit: BoxFit.cover,
               ),
             ),
             ListTile(
-              title: Text('Profile'),
+              title: Text('Back To Homepage'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PropertyListScreen()));
               },
             ),
             if (_user == null)

@@ -39,7 +39,7 @@ class PropertyDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Property Details'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF013c7e),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -80,14 +80,14 @@ class PropertyDetailsPage extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.location_on,
-                          color: Colors.grey,
+                          color: Color(0xFF013c7e),
                         ),
                         SizedBox(width: 8),
                         Text(
                           location,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey,
+                            color: Color(0xFF013c7e),
                           ),
                         ),
                         SizedBox(height: 16),
@@ -95,9 +95,10 @@ class PropertyDetailsPage extends StatelessWidget {
 
                     ),
                   ),SizedBox(height: 16),
+
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue),
+                      border: Border.all(color: Color(0xFF013c7e)),
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     padding: EdgeInsets.all(16.0),
@@ -117,6 +118,41 @@ class PropertyDetailsPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                  SizedBox(height: 16,),
+                  Container(
+                    padding: EdgeInsets.all(16),
+
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Description',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Color(0xFF013c7e)),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                            description,
+                            style: TextStyle(
+                              //fontWeight: FontWeight.bold,
+                              color: Color(0xFF013c7e),
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+
                 ],
               ),
             ),
@@ -136,7 +172,7 @@ class PropertyDetailsPage extends StatelessWidget {
             flex: 1,
             child: Text(
               label + ':',
-              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold,),
               textAlign: TextAlign.center,
             ),
           ),
@@ -146,7 +182,7 @@ class PropertyDetailsPage extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 value,
-                style: TextStyle(fontSize: fontSize),
+                style: TextStyle(fontSize: fontSize, color: Color(0xFF013c7e)),
                 textAlign: TextAlign.center,
               ),
             ),
