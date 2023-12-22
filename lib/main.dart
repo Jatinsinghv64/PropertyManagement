@@ -91,33 +91,17 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     }
   }
 
-  void _showAddPropertyForm(BuildContext context) async {
-    XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AddPropertyForm(onAddProperty: (title, description, location) {
-          _addProperty(title, description, image, location);
-        });
-      },
-    );
-  }
-
   List<Map<String, String>> _filterProperties(String query) {
-    return _properties
-        .where((property) {
+    return _properties.where((property) {
       final title = property['title'].toString().toLowerCase();
       final location = property['location'].toString().toLowerCase();
       return title.contains(query) || location.contains(query);
-    })
-        .map((property) {
+    }).map((property) {
       return {
         'title': property['title'].toString(),
         'location': property['location'].toString(),
       };
-    })
-        .toList();
+    }).toList();
   }
 
   void _showSearchPage(BuildContext context) async {
@@ -133,7 +117,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
 
   void _navigateToPropertyDetails(String propertyId) {
     var selectedProperty =
-    _properties.firstWhere((property) => property.id == propertyId);
+        _properties.firstWhere((property) => property.id == propertyId);
 
     Navigator.push(
       context,
@@ -143,6 +127,16 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
           description: selectedProperty['description'],
           imageUrl: selectedProperty['imageUrl'],
           location: selectedProperty['location'],
+          propertyType: selectedProperty['propertyType'],
+          bedrooms: selectedProperty['bedrooms'],
+          facilities: selectedProperty['facilities'],
+          availableFrom: selectedProperty['availableFrom'],
+          propertySize: selectedProperty['propertySize'],
+          bathroom: selectedProperty['bathroom'],
+          agentDetails: selectedProperty['agentDetails'],
+          amenities: selectedProperty['amenities'],
+          developedBy: selectedProperty['developedBy'],
+          uniquePropertyId: selectedProperty['uniquePropertyId'],
         ),
       ),
     );
@@ -166,18 +160,15 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.white, // Set the drawer header color to white
               ),
-              child: Text(
-                'Real Estate App',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+                child: Image.asset(
+                  '/Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO.jpg', // Adjust the path accordingly
+                  // fit: BoxFit.cover,
                 ),
-              ),
             ),
             ListTile(
-              title: Text('Profile'),
+              title: Text('Profile',style: TextStyle(color: Color(0xFF013c7e)),),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
                 Navigator.push(
@@ -187,7 +178,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
               },
             ),
             ListTile(
-              title: Text('Settings'),
+              title: Text('Settings',style: TextStyle(color: Color(0xFF013c7e)),),
               onTap: () {
                 // Handle Settings navigation
               },
@@ -251,7 +242,8 @@ class PropertySearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final filteredProperties = query.isEmpty ? properties : _filterProperties(query);
+    final filteredProperties =
+        query.isEmpty ? properties : _filterProperties(query);
 
     return ListView.builder(
       itemCount: filteredProperties.length,
@@ -270,7 +262,8 @@ class PropertySearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final filteredProperties = query.isEmpty ? properties : _filterProperties(query);
+    final filteredProperties =
+        query.isEmpty ? properties : _filterProperties(query);
 
     return ListView.builder(
       itemCount: filteredProperties.length,
@@ -366,6 +359,16 @@ class PropertyCard extends StatelessWidget {
           description: property['description'],
           imageUrl: property['imageUrl'],
           location: property['location'],
+          propertyType: property['propertyType'],
+          bedrooms: property['bedrooms'],
+          facilities: property['facilities'],
+          availableFrom: property['availableFrom'],
+          propertySize: property['propertySize'],
+          bathroom: property['bathroom'],
+          agentDetails: property['agentDetails'],
+          amenities: property['amenities'],
+          developedBy: property['developedBy'],
+          uniquePropertyId: property['uniquePropertyId'],
         ),
       ),
     );
@@ -382,9 +385,9 @@ class PropertyCard extends StatelessWidget {
           children: [
             Image.network(
               property['imageUrl'],
-              height: 150,
+              height: 350, // Set a specific height as needed
               width: double.infinity,
-              fit: BoxFit.cover,
+              fit: BoxFit.cover, // Ensure the image covers the entire space
             ),
             ListTile(
               title: Text(property['title']),
