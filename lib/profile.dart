@@ -183,7 +183,7 @@ class _ProfilePageState extends State<ProfilePage> {
               title: Text('Back To Homepage'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PropertyListScreen()));
+                Navigator.pop(context);
               },
             ),
             if (_user == null)

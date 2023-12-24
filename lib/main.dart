@@ -137,6 +137,9 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
           amenities: selectedProperty['amenities'],
           developedBy: selectedProperty['developedBy'],
           uniquePropertyId: selectedProperty['uniquePropertyId'],
+            agentName: selectedProperty['agentName'], // Replace with actual agent name
+            agentContact: selectedProperty['agentContact'], // Replace with actual agent contact details
+            agentImageUrl: selectedProperty['agentImageUrl']
         ),
       ),
     );
@@ -369,6 +372,9 @@ class PropertyCard extends StatelessWidget {
           amenities: property['amenities'],
           developedBy: property['developedBy'],
           uniquePropertyId: property['uniquePropertyId'],
+            agentName: property['agentName'], // Replace with actual agent name
+            agentContact: property['agentContact'], // Replace with actual agent contact details
+            agentImageUrl: property['agentImageUrl']
         ),
       ),
     );
@@ -384,11 +390,12 @@ class PropertyCard extends StatelessWidget {
         child: Column(
           children: [
             Image.network(
-              property['imageUrl'],
-              height: 350, // Set a specific height as needed
+              property['imageUrl'] ?? 'https://via.placeholder.com/350', // Provide a default URL if 'imageUrl' is null
+              height: 350,
               width: double.infinity,
-              fit: BoxFit.cover, // Ensure the image covers the entire space
+              fit: BoxFit.cover,
             ),
+
             ListTile(
               title: Text(property['title']),
               subtitle: Text(property['location']),
