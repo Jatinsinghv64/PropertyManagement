@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'mapBox.dart';
+//import 'mapBox.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -56,13 +56,14 @@ class PropertyDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 16,),
             // Carousel for multiple images
             Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.8, // Set the height as a percentage of the screen height
+              height: MediaQuery.of(context).size.height * 0.9, // Set the height as a percentage of the screen height
               child: CarouselSlider(
                 options: CarouselOptions(
-                  height: MediaQuery.of(context).size.height * 0.8, // Set the height in options as well
+                  height: MediaQuery.of(context).size.height * 0.9, // Set the height in options as well
                   enlargeCenterPage: true,
                   autoPlay: true,
                   autoPlayCurve: Curves.fastOutSlowIn,
@@ -94,7 +95,7 @@ class PropertyDetailsPage extends StatelessWidget {
                   SizedBox(height: 8),
                   InkWell(
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MapBoxScreen()));
+                      //Navigator.push(context, MaterialPageRoute(builder: (context) => MapBoxScreen()));
                     },
                     child: Row(
                       children: [

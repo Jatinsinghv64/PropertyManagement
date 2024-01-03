@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:property/addProperty.dart';
+import 'package:property/authentication.dart';
 
 
 import 'main.dart'; // Import the AddPropertyForm
@@ -38,37 +40,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _handleSignIn() async {
     try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      // Remove the Google Sign-In code
+      // ...
 
-      if (googleUser == null) {
-        print("User cancelled Google Sign-In");
-        return;
-      }
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      // Navigate to the Authentication page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AuthenticationPage()),
       );
-
-      UserCredential authResult = await _auth.signInWithCredential(credential);
-      User? user = authResult.user;
-
-      print("Successfully signed in with Google: ${user?.displayName}");
-
-      _checkCurrentUser();
-      if (user != null) {
-        _showAddPropertyForm(context); // Navigate to the AddPropertyForm if signed in
-      }
     } catch (error) {
-      print("Error signing in with Google: $error");
+      print("Error signing in: $error");
     }
   }
 
   Future<void> _handleSignOut() async {
     try {
       await _auth.signOut();
-      await googleSignIn.signOut();
 
       setState(() {
         _user = null;
@@ -78,20 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void _showAddPropertyForm(BuildContext context) async {
-    XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AddPropertyForm(
-          onAddProperty: (title, description, location) {
-            _addProperty(title, description, image, location);
-          },
-        );
-      },
-    );
-  }
 
   Future<void> _addProperty(
       String title, String description, XFile? image, String location) async {
@@ -135,38 +109,68 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => PropertyListScreen()),
+              );
             },
             icon: Icon(Icons.close),
           ),
+
         ],
       ),
       body: Center(
-        child: _user != null
-            ? Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(_user!.photoURL ?? ''),
-            ),
-            SizedBox(height: 20),
-            Text(
-              _user!.displayName ?? '',
+            _user != null
+                ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(_user!.photoURL ?? ''),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  _user!.displayName ?? '',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  _user!.email ?? '',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            )
+                : Text(
+              'Please sign in to Add property as an agent.',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
-            Text(
-              _user!.email ?? '',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            SizedBox(height: 20),
+            // Sign-in and Sign-out button
+            ElevatedButton(
+              onPressed: () {
+                if (_user == null) {
+                  _handleSignIn();
+                } else {
+                  _handleSignOut();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFF013c7e), // Set the desired background color
+              ),
+              child: Text(_user == null ? 'Sign In' : 'Sign Out'),
             ),
+
           ],
-        )
-            : Text(
-          'Please sign in to Add property as an agent.',
-          style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
         ),
       ),
+
+
       drawer: Drawer(
         child: ListView(
           children: [
@@ -186,16 +190,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.pop(context);
               },
             ),
-            if (_user == null)
-              ListTile(
-                title: Text('Sign In with Google'),
-                onTap: _handleSignIn,
-              ),
-            if (_user != null)
-              ListTile(
-                title: Text('Sign Out'),
-                onTap: _handleSignOut,
-              ),
             ListTile(
               title: Text('Close'),
               onTap: () => Navigator.pop(context), // Close the drawer
@@ -206,13 +200,18 @@ class _ProfilePageState extends State<ProfilePage> {
       floatingActionButton: _user != null
           ? FloatingActionButton.extended(
         onPressed: () {
-          _showAddPropertyForm(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AddPropertyPage()),
+          );
         },
         label: Text('Add Property'),
         icon: Icon(Icons.add),
         backgroundColor: Colors.green,
       )
-          : null, // If user is not signed in, hide the button
+          : null,
+      // If user is not signed in, hide the button
     );
+
   }
 }
