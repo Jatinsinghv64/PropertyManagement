@@ -107,15 +107,15 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Text('Profile'),
         backgroundColor: Color(0xFF013c7e),
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => PropertyListScreen()),
-              );
-            },
-            icon: Icon(Icons.close),
-          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => PropertyListScreen()),
+          //     );
+          //   },
+          //   icon: Icon(Icons.close),
+          // ),
 
         ],
       ),
@@ -166,8 +166,18 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text(_user == null ? 'Sign In' : 'Sign Out'),
             ),
 
+
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 1, // Set the current index for the Profile page
+        onTap: (index) {
+          // Handle tap on Bottom Navigation Bar items
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        },
       ),
 
 
@@ -179,17 +189,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: Colors.white, // Set the drawer header color to white
               ),
               child: Image.asset(
-                '/Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO.jpg', // Adjust the path accordingly
+                'assets/Images/AHBLOGO.jpg', // Adjust the path accordingly
                 // fit: BoxFit.cover,
               ),
             ),
-            ListTile(
-              title: Text('Back To Homepage'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.pop(context);
-              },
-            ),
+            // ListTile(
+            //   title: Text('Back To Homepage'),
+            //   onTap: () {
+            //     Navigator.pop(context); // Close the drawer
+            //     Navigator.pop(context);
+            //   },
+            // ),
             ListTile(
               title: Text('Close'),
               onTap: () => Navigator.pop(context), // Close the drawer
@@ -212,6 +222,7 @@ class _ProfilePageState extends State<ProfilePage> {
           : null,
       // If user is not signed in, hide the button
     );
+
 
   }
 }

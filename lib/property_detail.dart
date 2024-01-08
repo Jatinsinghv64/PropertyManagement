@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,38 +14,47 @@ class PropertyDetailsPage extends StatelessWidget {
   final String title;
   final String description;
   final String imageUrl;
+  // final String imageUrl1;
+  // final String imageUrl2;
+  // final String imageUrl3;
+  // final String imageUrl4;
+  // final String imageUrl5;
   final String location;
   final String propertyType;
   final String bedrooms;
   final String availableFrom;
   final String propertySize;
-  final String bathroom;
+  final String bathrooms;
   final String agentDetails;
   final String facilities;
   final String developedBy;
   final String amenities;
   final String uniquePropertyId;
-
-  PropertyDetailsPage({
-    required this.title,
-    required this.description,
-    required this.imageUrl,
-    required this.location,
-    required this.propertyType,
-    required this.bedrooms,
-    required this.availableFrom,
-    required this.propertySize,
-    required this.bathroom,
-    required this.agentDetails,
-    required this.facilities,
-    required this.developedBy,
-    required this.amenities,
-    required this.uniquePropertyId,
-    required this.agentName,
-    required this.agentContact,
-    required this.agentImageUrl,
-  });
-
+  final List<dynamic> imgUrls;
+  PropertyDetailsPage(
+      {required this.title,
+      required this.description,
+      required this.imageUrl,
+      required this.location,
+      required this.propertyType,
+      required this.bedrooms,
+      required this.availableFrom,
+      required this.propertySize,
+      required this.bathrooms,
+      required this.agentDetails,
+      required this.facilities,
+      required this.developedBy,
+      required this.amenities,
+      required this.uniquePropertyId,
+      required this.agentName,
+      required this.agentContact,
+      required this.agentImageUrl,
+      // required this.imageUrl1,
+      // required this.imageUrl2,
+      // required this.imageUrl3,
+      // required this.imageUrl4,
+      // required this.imageUrl5,
+      required this.imgUrls});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,25 +66,42 @@ class PropertyDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 16,),
+            SizedBox(
+              height: 16,
+            ),
             // Carousel for multiple images
             Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.9, // Set the height as a percentage of the screen height
+              height: MediaQuery.of(context).size.height * 0.6,
               child: CarouselSlider(
                 options: CarouselOptions(
-                  height: MediaQuery.of(context).size.height * 0.9, // Set the height in options as well
+                  height: MediaQuery.of(context).size.height * 0.9,
                   enlargeCenterPage: true,
                   autoPlay: true,
                   autoPlayCurve: Curves.fastOutSlowIn,
                   enableInfiniteScroll: true,
                 ),
-                items: [
-                  Image.network(imageUrl, fit: BoxFit.cover),
-                  Image.network('https://i.postimg.cc/YqznvdXN/Whats-App-Image-2023-12-23-at-7-23-16-PM.jpg', fit: BoxFit.cover),
-                  Image.network('https://i.postimg.cc/4d903t2r/Whats-App-Image-2023-12-23-at-7-23-16-PM-2.jpg', fit: BoxFit.cover),
-                  // Add more images as needed
-                ],
+                items: imgUrls.map((imageUrl) {
+                  return CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      width: 50.0,  // Set the width as needed
+                      height: 50.0, // Set the height as needed
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.0, // Set the stroke width as needed
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    imageBuilder: (context, imageProvider) => Image(
+                      image: imageProvider,
+                      errorBuilder: (context, error, stackTrace) {
+                        print("Error loading image: $error");
+                        return Icon(Icons.error);
+                      },
+                    ),
+                  );
+                }).toList(),
               ),
             ),
 
@@ -87,16 +114,14 @@ class PropertyDetailsPage extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF013c7e),
                     ),
                   ),
                   SizedBox(height: 8),
                   InkWell(
-                    onTap: () {
-                      //Navigator.push(context, MaterialPageRoute(builder: (context) => MapBoxScreen()));
-                    },
+                    onTap: () {},
                     child: Row(
                       children: [
                         Icon(
@@ -116,7 +141,6 @@ class PropertyDetailsPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
-
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Color(0xFF013c7e)),
@@ -127,19 +151,23 @@ class PropertyDetailsPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        buildRow(propertyType, 'Property Type', 22),
-                        buildRow(bedrooms, 'Bedrooms', 22),
-                        buildRow(availableFrom, 'Available From', 22),
-                        buildRow(propertySize, 'Property Size', 22),
-                        buildRow(bathroom, 'Bathroom', 22),
-                        buildRow(agentDetails, 'Agent Details', 22),
-                        buildRow(facilities, 'Facilities', 22),
-                        buildRow(developedBy, 'Developed By', 22),
+                        buildRow(propertyType, 'Property Type', 12),
+                        buildRow(bedrooms, 'Bedrooms', 12),
+                        buildRow(availableFrom, 'Available From', 12),
+                        buildRow(propertySize, 'Property Size', 12),
+                        buildRow(bathrooms, 'Bathroom', 12),
+                        buildRow(agentDetails, 'Agent Details', 12),
+                        buildRow(facilities, 'Facilities', 12),
+                        buildRow(developedBy, 'Developed By', 12),
                         // Add more rows as needed
                       ],
                     ),
                   ),
-                  SizedBox(height: 16,),
+
+
+                  SizedBox(
+                    height: 16,
+                  ),
                   Container(
                     padding: EdgeInsets.all(16),
                     child: Column(
@@ -149,7 +177,7 @@ class PropertyDetailsPage extends StatelessWidget {
                           'Description',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 24,
+                            fontSize: 19,
                             color: Color(0xFF013c7e),
                           ),
                         ),
@@ -163,7 +191,7 @@ class PropertyDetailsPage extends StatelessWidget {
                           child: Text(
                             description,
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 15,
                               color: Color(0xFF013c7e),
                             ),
                           ),
@@ -173,7 +201,7 @@ class PropertyDetailsPage extends StatelessWidget {
                           'Amenities',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 24,
+                            fontSize: 19,
                             color: Color(0xFF013c7e),
                           ),
                         ),
@@ -191,24 +219,31 @@ class PropertyDetailsPage extends StatelessWidget {
                               amenityTile('Balcony', Icons.balcony),
                               amenityTile('Built in Wardrobes', Icons.check),
                               amenityTile('Central A/C', Icons.ac_unit),
-                              amenityTile("Children's Play Area", Icons.sports_basketball),
+                              amenityTile("Children's Play Area",
+                                  Icons.sports_basketball),
                               amenityTile('Concierge', Icons.check),
                               amenityTile('Covered Parking', Icons.car_repair),
-                              amenityTile('Kitchen Appliances', Icons.soup_kitchen),
-                              amenityTile('Lobby in Building', Icons.maps_home_work_rounded),
+                              amenityTile(
+                                  'Kitchen Appliances', Icons.soup_kitchen),
+                              amenityTile('Lobby in Building',
+                                  Icons.maps_home_work_rounded),
                               amenityTile('Security', Icons.security),
-                              amenityTile('Shared Gym', Icons.sports_gymnastics),
+                              amenityTile(
+                                  'Shared Gym', Icons.sports_gymnastics),
                               amenityTile('Shared Pool', Icons.pool),
                               amenityTile('View of Landmark', Icons.check),
                               amenityTile('View of Water', Icons.water),
-                              amenityTile('Walk-in Closet', Icons.kitchen_sharp),
+                              amenityTile(
+                                  'Walk-in Closet', Icons.kitchen_sharp),
                             ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 16,),
+                  SizedBox(
+                    height: 16,
+                  ),
                   Text(
                     'Agent',
                     style: TextStyle(
@@ -217,16 +252,12 @@ class PropertyDetailsPage extends StatelessWidget {
                       color: Color(0xFF013c7e),
                     ),
                   ),
-
-                  // Add AgentDetailsBox here
                   AgentDetailsBox(
                     agentName: agentName, // Replace with actual agent name
-                    agentContact: agentContact, // Replace with actual agent contact details
+                    agentContact:
+                        agentContact, // Replace with actual agent contact details
                     agentImageUrl: agentImageUrl,
-
-
                   ),
-
                 ],
               ),
             ),
@@ -235,7 +266,6 @@ class PropertyDetailsPage extends StatelessWidget {
       ),
     );
   }
-
   Widget buildRow(String value, String label, double fontSize) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -246,7 +276,10 @@ class PropertyDetailsPage extends StatelessWidget {
             flex: 1,
             child: Text(
               label + ':',
-              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold,),
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -325,7 +358,8 @@ class AgentDetailsBox extends StatelessWidget {
           // Circular Image
           CircleAvatar(
             radius: 50,
-            backgroundImage: NetworkImage(agentImageUrl), // Add actual agent image URL
+            backgroundImage:
+                NetworkImage(agentImageUrl), // Add actual agent image URL
           ),
           SizedBox(height: 16),
 
@@ -333,10 +367,9 @@ class AgentDetailsBox extends StatelessWidget {
           Text(
             agentName,
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF013c7e)
-            ),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF013c7e)),
           ),
           SizedBox(height: 8),
 
@@ -359,7 +392,8 @@ class AgentDetailsBox extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.green, // Set button color to green
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16), // Set button padding
+                padding: EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 16), // Set button padding
               ),
               icon: Icon(Icons.phone, size: 24), // Add phone icon
               label: Text(
@@ -375,8 +409,3 @@ class AgentDetailsBox extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

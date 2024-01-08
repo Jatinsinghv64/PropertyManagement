@@ -54,39 +54,49 @@ class _LoginFormState extends State<LoginForm> {
           obscureText: true,
         ),
         SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () async {
-            // Sign in with email and password
-            try {
-              await _auth.signInWithEmailAndPassword(
-                email: _emailController.text.trim(),
-                password: _passwordController.text.trim(),
-              );
+        Center(
+          child: ElevatedButton(
+            onPressed: () async {
+              // Sign in with email and password
+              try {
+                await _auth.signInWithEmailAndPassword(
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text.trim(),
+                );
 
-              // Show a Snackbar upon successful login
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Successfully logged in!'),
-                  duration: Duration(seconds: 4),
-                ),
-              );
+                // Show a Snackbar upon successful login
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Successfully logged in!'),
+                    duration: Duration(seconds: 4),
+                  ),
+                );
 
-              // Navigate to the ProfilePage
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
-            } catch (e) {
-              print('Error signing in: $e');
-              // Handle sign-in errors
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            primary: Color(0xFF013c7e), // Set background color here
+                // Navigate to the ProfilePage
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(),
+                  ),
+                );
+              } catch (e) {
+                print('Error signing in: $e');
+                // Handle sign-in errors
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              primary: Color(0xFF013c7e), // Change background color here
+              minimumSize: Size(200, 50), // Set the size here
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10), // Set border radius here
+              ),
+            ),
+            child: Text(
+              'Sign In',
+              style: TextStyle(fontSize: 20), // Set the font size here
+            ),
           ),
-          child: Text('Sign In'),
         ),
-
         SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -107,6 +117,7 @@ class _LoginFormState extends State<LoginForm> {
       ],
     );
   }
+
 }
 
 

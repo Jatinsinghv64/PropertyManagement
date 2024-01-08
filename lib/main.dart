@@ -1,16 +1,12 @@
 import 'dart:core';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:property/loading_screen.dart';
 import 'package:property/profile.dart';
-
 import 'package:property/property_detail.dart';
-
 import 'firebase_options.dart';
 
 void main() async {
@@ -25,18 +21,58 @@ class MyApp extends StatelessWidget {
   final navigatorKey = GlobalKey<NavigatorState>();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Real Estate App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return WillPopScope(
+      onWillPop: () async {
+        // If the current screen is not the home screen (index 0),
+        // navigate to the home screen and prevent going back
+        if (navigatorKey.currentState?.canPop() ?? false) {
+          navigatorKey.currentState?.popUntil((route) => route.isFirst);
+          return false;
+        }
+        // Otherwise, allow the back button to work as usual
+        return true;
+      },
+      child: MaterialApp(
+        title: 'Real Estate App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
+        home: LoadingScreen(),
+        routes: {
+          '/home': (context) => PropertyListScreen(),
+          '/profile': (context) => ProfilePage(),
+        },
       ),
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      home: AuthenticationWrapper(),
     );
   }
 }
+class BottomNavBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
 
+  BottomNavBar({required this.currentIndex, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
+      currentIndex: currentIndex,
+      selectedItemColor: Colors.blue,
+      onTap: onTap,
+    );
+  }
+}
 class AuthenticationWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -47,179 +83,205 @@ class AuthenticationWrapper extends StatelessWidget {
 class PropertyListScreen extends StatefulWidget {
   @override
   _PropertyListScreenState createState() => _PropertyListScreenState();
+
+
+
 }
 
 class _PropertyListScreenState extends State<PropertyListScreen> {
   late Stream<QuerySnapshot> _propertyStream;
-  late List<DocumentSnapshot> _properties;
+  late List<DocumentSnapshot> _properties = []; // Initialize _properties here
+  int _selectedIndex = 0;
+  late GlobalKey<NavigatorState> _navigatorKey;
+  PropertyFilterOptions _filterOptions = PropertyFilterOptions();
+  List<DocumentSnapshot> _filteredProperties = [];
 
   @override
   void initState() {
     super.initState();
-    _propertyStream =
-        FirebaseFirestore.instance.collection('properties').snapshots();
+    _navigatorKey = GlobalKey<NavigatorState>();
+    _propertyStream = FirebaseFirestore.instance.collection('properties').snapshots();
+
+    // Initialize _properties with an empty list
+    _properties = [];
   }
 
-  Future<void> _addProperty(
-      String title, String description, XFile? image, String location) async {
-    try {
-      String imageUrl = '';
+  List<DocumentSnapshot> _filterProperties(String query) {
+    query = query.toLowerCase();
 
-      if (image != null) {
-        Reference storageReference = FirebaseStorage.instance
-            .ref()
-            .child('property_images/${DateTime.now()}.png');
-        UploadTask uploadTask = storageReference.putFile(File(image.path!));
-
-        await uploadTask.whenComplete(() async {
-          imageUrl = await storageReference.getDownloadURL();
-        });
-      }
-
-      await FirebaseFirestore.instance.collection('properties').add({
-        'title': title,
-        'description': description,
-        'imageUrl': imageUrl,
-        'location': location,
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Property added successfully!')));
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error adding property: $e')));
-    }
-  }
-
-  List<Map<String, String>> _filterProperties(String query) {
-    return _properties.where((property) {
+    List<DocumentSnapshot> filteredProperties = _properties.where((property) {
       final title = property['title'].toString().toLowerCase();
       final location = property['location'].toString().toLowerCase();
-      return title.contains(query) || location.contains(query);
-    }).map((property) {
-      return {
-        'title': property['title'].toString(),
-        'location': property['location'].toString(),
-      };
-    }).toList();
+      final propertyType = property['propertyType'].toString().toLowerCase();
+      final bedrooms = property['bedrooms'].toString();
+
+      return (title.contains(query) ||
+          location.contains(query) ||
+          propertyType.contains(query) ||
+          bedrooms.contains(query)) &&
+          (!_filterOptions.hasFilters() ||
+              (property['propertyType'] == _filterOptions.propertyType &&
+                  property['price'] >= _filterOptions.minPrice &&
+                  property['price'] <= _filterOptions.maxPrice &&
+                  property['bedrooms'] >= _filterOptions.minBeds &&
+                  property['bathrooms'] >= _filterOptions.minBaths &&
+                  (property['amenities'] as List<dynamic>)
+                      .contains(_filterOptions.selectedAmenity)));
+          }).toList();
+    setState(() {
+      _properties = filteredProperties;
+    });
+
+    return filteredProperties;
   }
 
-  void _showSearchPage(BuildContext context) async {
-    final String? selected = await showSearch<String>(
-      context: context,
-      delegate: PropertySearchDelegate(_properties),
-    );
 
-    if (selected != null) {
-      _navigateToPropertyDetails(selected);
-    }
-  }
+  Widget _buildFilterOptions() {
+    // Extract unique property types from the properties list
+    Set<String> uniquePropertyTypes = _properties
+        .map<String>((property) => property['propertyType'].toString())
+        .toSet();
 
-  void _navigateToPropertyDetails(String propertyId) {
-    var selectedProperty =
-        _properties.firstWhere((property) => property.id == propertyId);
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PropertyDetailsPage(
-          title: selectedProperty['title'],
-          description: selectedProperty['description'],
-          imageUrl: selectedProperty['imageUrl'],
-          location: selectedProperty['location'],
-          propertyType: selectedProperty['propertyType'],
-          bedrooms: selectedProperty['bedrooms'],
-          facilities: selectedProperty['facilities'],
-          availableFrom: selectedProperty['availableFrom'],
-          propertySize: selectedProperty['propertySize'],
-          bathroom: selectedProperty['bathroom'],
-          agentDetails: selectedProperty['agentDetails'],
-          amenities: selectedProperty['amenities'],
-          developedBy: selectedProperty['developedBy'],
-          uniquePropertyId: selectedProperty['uniquePropertyId'],
-            agentName: selectedProperty['agentName'], // Replace with actual agent name
-            agentContact: selectedProperty['agentContact'], // Replace with actual agent contact details
-            agentImageUrl: selectedProperty['agentImageUrl']
+    return Column(
+      children: [
+        DropdownButton<String>(
+          value: _filterOptions.propertyType,
+          onChanged: (newValue) {
+            setState(() {
+              _filterOptions.propertyType = newValue!;
+            });
+          },
+          items: uniquePropertyTypes
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          hint: Text('Select Property Type'),
         ),
-      ),
+      ],
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Properties'),
-        backgroundColor: Color(0xFF013c7e),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => _showSearchPage(context),
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.white, // Set the drawer header color to white
-              ),
-                child: Image.asset(
-                  '/Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO.jpg', // Adjust the path accordingly
-                  // fit: BoxFit.cover,
-                ),
-            ),
-            ListTile(
-              title: Text('Profile',style: TextStyle(color: Color(0xFF013c7e)),),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Settings',style: TextStyle(color: Color(0xFF013c7e)),),
-              onTap: () {
-                // Handle Settings navigation
-              },
-            ),
-          ],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('AHB', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          backgroundColor: Color(0xFF013c7e),
+          automaticallyImplyLeading: false,
         ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _propertyStream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            _properties = snapshot.data!.docs;
-            return ListView.builder(
-              itemCount: _properties.length,
-              itemBuilder: (context, index) {
-                var property = _properties[index];
-                return PropertyCard(property: property);
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _filteredProperties = _properties
+                        .where((property) =>
+                    property['location'].toString().toLowerCase().contains(value.toLowerCase()) ||
+                        property['propertyType'].toString().toLowerCase().contains(value.toLowerCase()) ||
+                        property['bedrooms'].toString().contains(value))
+                        .toList();
+                  });
+                },
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'Search',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.filter_list),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => _buildFilterOptions(),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                child: _buildPropertiesList(),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomNavBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }
-}
 
+  Future<bool> _onWillPop() async {
+    // If the current screen is not the home screen (index 0),
+    // navigate to the home screen and prevent going back
+    if (_navigatorKey.currentState?.canPop() ?? false) {
+      _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+      return false;
+    }
+    // Otherwise, allow the back button to work as usual
+    return true;
+  }
+  Widget _buildPropertiesList() {
+    final List<DocumentSnapshot> displayedProperties = _filteredProperties.isNotEmpty
+        ? _filteredProperties
+        : _properties;
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: _propertyStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          _properties = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: displayedProperties.length,
+            itemBuilder: (context, index) {
+              var property = displayedProperties[index];
+              return PropertyCard(property: property);
+            },
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
+  }
+
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      if (_selectedIndex == 1) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage()),
+        );
+      }
+    });
+  }
+}
 class PropertySearchDelegate extends SearchDelegate<String> {
   final List<DocumentSnapshot> properties;
+  final PropertyFilterOptions filterOptions;
 
-  PropertySearchDelegate(this.properties);
+  PropertySearchDelegate(this.properties, this.filterOptions);
+
+  late List<DocumentSnapshot> _filteredProperties;
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -245,33 +307,32 @@ class PropertySearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final filteredProperties =
-        query.isEmpty ? properties : _filterProperties(query);
-
-    return ListView.builder(
-      itemCount: filteredProperties.length,
-      itemBuilder: (context, index) {
-        var property = filteredProperties[index];
-        return ListTile(
-          title: Text(property['title']),
-          subtitle: Text(property['location']),
-          onTap: () {
-            close(context, property.id);
-          },
-        );
-      },
-    );
+    _filterProperties();
+    return _buildSearchResults();
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final filteredProperties =
-        query.isEmpty ? properties : _filterProperties(query);
+    _filterProperties();
+    return _buildSearchResults();
+  }
 
+  void _filterProperties() {
+    _filteredProperties = properties.where((property) {
+      final title = property['title'].toString().toLowerCase();
+      final location = property['location'].toString().toLowerCase();
+      return (title.contains(query.toLowerCase()) || location.contains(query.toLowerCase())) &&
+          (!filterOptions.hasFilters() ||
+              (property['propertyType'] == filterOptions.propertyType &&
+                  property['bedrooms'] >= filterOptions.minBeds));
+    }).toList();
+  }
+
+  Widget _buildSearchResults() {
     return ListView.builder(
-      itemCount: filteredProperties.length,
+      itemCount: _filteredProperties.length,
       itemBuilder: (context, index) {
-        var property = filteredProperties[index];
+        var property = _filteredProperties[index];
         return ListTile(
           title: Text(property['title']),
           subtitle: Text(property['location']),
@@ -280,70 +341,6 @@ class PropertySearchDelegate extends SearchDelegate<String> {
           },
         );
       },
-    );
-  }
-
-  List<DocumentSnapshot> _filterProperties(String query) {
-    return properties.where((property) {
-      final title = property['title'].toString().toLowerCase();
-      final location = property['location'].toString().toLowerCase();
-      return title.contains(query) || location.contains(query);
-    }).toList();
-  }
-}
-
-class AddPropertyForm extends StatefulWidget {
-  final Function(String, String, String) onAddProperty;
-
-  AddPropertyForm({required this.onAddProperty});
-
-  @override
-  _AddPropertyFormState createState() => _AddPropertyFormState();
-}
-
-class _AddPropertyFormState extends State<AddPropertyForm> {
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _locationController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Add Property'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _titleController,
-            decoration: InputDecoration(labelText: 'Title'),
-          ),
-          TextField(
-            controller: _descriptionController,
-            decoration: InputDecoration(labelText: 'Description'),
-          ),
-          TextField(
-            controller: _locationController,
-            decoration: InputDecoration(labelText: 'Location'),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            widget.onAddProperty(
-              _titleController.text,
-              _descriptionController.text,
-              _locationController.text,
-            );
-            Navigator.pop(context);
-          },
-          child: Text('Add'),
-        ),
-      ],
     );
   }
 }
@@ -352,8 +349,9 @@ class PropertyCard extends StatelessWidget {
   final DocumentSnapshot property;
 
   PropertyCard({required this.property});
-
   void _showPropertyDetails(BuildContext context) {
+    List<String> imgUrls = List<String>.from(property['imgUrls']);
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -361,13 +359,14 @@ class PropertyCard extends StatelessWidget {
           title: property['title'],
           description: property['description'],
           imageUrl: property['imageUrl'],
-          location: property['location'],
+            imgUrls: property['imgUrls'],
+            location: property['location'],
           propertyType: property['propertyType'],
           bedrooms: property['bedrooms'],
           facilities: property['facilities'],
           availableFrom: property['availableFrom'],
           propertySize: property['propertySize'],
-          bathroom: property['bathroom'],
+          bathrooms: property['bathrooms'],
           agentDetails: property['agentDetails'],
           amenities: property['amenities'],
           developedBy: property['developedBy'],
@@ -382,6 +381,8 @@ class PropertyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<String> imgUrls = List<String>.from(property['imgUrls']);
+
     return InkWell(
       onTap: () => _showPropertyDetails(context),
       child: Card(
@@ -389,13 +390,23 @@ class PropertyCard extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Column(
           children: [
-            Image.network(
-              property['imageUrl'] ?? 'https://via.placeholder.com/350', // Provide a default URL if 'imageUrl' is null
-              height: 350,
-              width: double.infinity,
-              fit: BoxFit.cover,
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 200.0,
+                enableInfiniteScroll: true,
+                autoPlay: true,
+              ),
+              items: imgUrls.map((imageUrl) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                );
+              }).toList(),
             ),
-
             ListTile(
               title: Text(property['title']),
               subtitle: Text(property['location']),
@@ -406,3 +417,25 @@ class PropertyCard extends StatelessWidget {
     );
   }
 }
+
+// Add this class for filter options
+class PropertyFilterOptions {
+  String propertyType = "";
+  double minPrice = 0.0;
+  double maxPrice = double.infinity;
+  int minBeds = 0;
+  int minBaths = 0;
+  String selectedAmenity = "";
+
+  bool hasFilters() {
+    return propertyType.isNotEmpty ||
+        minPrice > 0.0 ||
+        maxPrice < double.infinity ||
+        minBeds > 0 ||
+        minBaths > 0 ||
+        selectedAmenity.isNotEmpty;
+  }
+}
+
+
+
