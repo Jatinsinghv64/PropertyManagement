@@ -13,12 +13,6 @@ class PropertyDetailsPage extends StatelessWidget {
   final String agentImageUrl;
   final String title;
   final String description;
-  final String imageUrl;
-  // final String imageUrl1;
-  // final String imageUrl2;
-  // final String imageUrl3;
-  // final String imageUrl4;
-  // final String imageUrl5;
   final String location;
   final String propertyType;
   final String bedrooms;
@@ -34,7 +28,6 @@ class PropertyDetailsPage extends StatelessWidget {
   PropertyDetailsPage(
       {required this.title,
       required this.description,
-      required this.imageUrl,
       required this.location,
       required this.propertyType,
       required this.bedrooms,

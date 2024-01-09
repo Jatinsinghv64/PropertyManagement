@@ -47,11 +47,16 @@ dependencies:
   carousel_slider: ^4.2.1
   provider: ^6.1.1
   cached_network_image: ^3.3.1
+  shared_preferences: ^2.2.2
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+#
+#  flutter_icons:
+#    image_path: "Users/jatinsingh/StudioProjects/property/assets/Images/icon.jpg"
 
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -59,7 +64,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+#  flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -68,7 +73,9 @@ dev_dependencies:
 flutter:
   assets:
     - /Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO.jpg
-    - /assets/Images/icon.jpg
+    - /Users/jatinsingh/StudioProjects/property/assets/Images/icon.jpg
+
+
 
 
   # The following line ensures that the Material Icons font is

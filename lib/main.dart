@@ -19,18 +19,13 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // If the current screen is not the home screen (index 0),
-        // navigate to the home screen and prevent going back
-        if (navigatorKey.currentState?.canPop() ?? false) {
-          navigatorKey.currentState?.popUntil((route) => route.isFirst);
-          return false;
-        }
-        // Otherwise, allow the back button to work as usual
-        return true;
+        // Always return false to disable the Android back button
+        return false;
       },
       child: MaterialApp(
         title: 'Real Estate App',
@@ -48,6 +43,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -83,14 +79,11 @@ class AuthenticationWrapper extends StatelessWidget {
 class PropertyListScreen extends StatefulWidget {
   @override
   _PropertyListScreenState createState() => _PropertyListScreenState();
-
-
-
 }
 
 class _PropertyListScreenState extends State<PropertyListScreen> {
   late Stream<QuerySnapshot> _propertyStream;
-  late List<DocumentSnapshot> _properties = []; // Initialize _properties here
+  late List<DocumentSnapshot> _properties = [];
   int _selectedIndex = 0;
   late GlobalKey<NavigatorState> _navigatorKey;
   PropertyFilterOptions _filterOptions = PropertyFilterOptions();
@@ -101,10 +94,9 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     super.initState();
     _navigatorKey = GlobalKey<NavigatorState>();
     _propertyStream = FirebaseFirestore.instance.collection('properties').snapshots();
-
-    // Initialize _properties with an empty list
     _properties = [];
   }
+
 
   List<DocumentSnapshot> _filterProperties(String query) {
     query = query.toLowerCase();
@@ -127,7 +119,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                   property['bathrooms'] >= _filterOptions.minBaths &&
                   (property['amenities'] as List<dynamic>)
                       .contains(_filterOptions.selectedAmenity)));
-          }).toList();
+    }).toList();
     setState(() {
       _properties = filteredProperties;
     });
@@ -208,7 +200,29 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                 ),
               ),
               Expanded(
-                child: _buildPropertiesList(),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _propertyStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      _properties = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: _properties.length,
+                        itemBuilder: (context, index) {
+                          var property = _properties[index];
+                          return PropertyCard(property: property);
+                        },
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  },
+                ),
               ),
             ],
           ),
@@ -221,16 +235,28 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     );
   }
 
+  DateTime? currentBackPressTime;
+
   Future<bool> _onWillPop() async {
-    // If the current screen is not the home screen (index 0),
-    // navigate to the home screen and prevent going back
     if (_navigatorKey.currentState?.canPop() ?? false) {
       _navigatorKey.currentState?.popUntil((route) => route.isFirst);
       return false;
+    } else {
+      DateTime now = DateTime.now();
+      if (currentBackPressTime == null ||
+          now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+        currentBackPressTime = now;
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text('Press back again to exit'),
+        //   ),
+        // );
+        return false;
+      }
+      return true;
     }
-    // Otherwise, allow the back button to work as usual
-    return true;
   }
+
   Widget _buildPropertiesList() {
     final List<DocumentSnapshot> displayedProperties = _filteredProperties.isNotEmpty
         ? _filteredProperties
@@ -356,21 +382,20 @@ class PropertyCard extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => PropertyDetailsPage(
-          title: property['title'],
-          description: property['description'],
-          imageUrl: property['imageUrl'],
+            title: property['title'],
+            description: property['description'],
             imgUrls: property['imgUrls'],
             location: property['location'],
-          propertyType: property['propertyType'],
-          bedrooms: property['bedrooms'],
-          facilities: property['facilities'],
-          availableFrom: property['availableFrom'],
-          propertySize: property['propertySize'],
-          bathrooms: property['bathrooms'],
-          agentDetails: property['agentDetails'],
-          amenities: property['amenities'],
-          developedBy: property['developedBy'],
-          uniquePropertyId: property['uniquePropertyId'],
+            propertyType: property['propertyType'],
+            bedrooms: property['bedrooms'],
+            facilities: property['facilities'],
+            availableFrom: property['availableFrom'],
+            propertySize: property['propertySize'],
+            bathrooms: property['bathrooms'],
+            agentDetails: property['agentDetails'],
+            amenities: property['amenities'],
+            developedBy: property['developedBy'],
+            uniquePropertyId: property['uniquePropertyId'],
             agentName: property['agentName'], // Replace with actual agent name
             agentContact: property['agentContact'], // Replace with actual agent contact details
             agentImageUrl: property['agentImageUrl']
@@ -392,7 +417,7 @@ class PropertyCard extends StatelessWidget {
           children: [
             CarouselSlider(
               options: CarouselOptions(
-                height: 200.0,
+                height: 400.0,
                 enableInfiniteScroll: true,
                 autoPlay: true,
               ),
@@ -436,6 +461,5 @@ class PropertyFilterOptions {
         selectedAmenity.isNotEmpty;
   }
 }
-
 
 

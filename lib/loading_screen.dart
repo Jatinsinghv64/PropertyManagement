@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:property/main.dart';
 // Replace with the actual path to your home screen
@@ -37,7 +36,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
           children: [
             // Display your image here
             Image.asset(
-              'assets/Images/icon.jpg', // Replace with the actual path to your image
+              '/Users/jatinsingh/StudioProjects/property/assets/Images/icon.jpg', // Replace with the actual path to your image
               width: 100, // Set the width as per your requirement
               height: 100, // Set the height as per your requirement
             ),
