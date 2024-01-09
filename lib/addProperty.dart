@@ -15,10 +15,13 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Property'),
+        title: const Text('Add Property',style: TextStyle(color: Colors.white),),
         backgroundColor: const Color(0xFF013c7e),
+        iconTheme: IconThemeData(color: Colors.white),
+
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
+
           onPressed: () {
             // Navigate to the profile page
             Navigator.pushReplacementNamed(context, '/profile');
@@ -131,7 +134,7 @@ class _AddPropertyFormState extends State<_AddPropertyForm> {
   Widget _buildImagePickerButton(String buttonText, Function() onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(buttonText),
+      child: Text(buttonText,style: TextStyle(color: Colors.white),),
     );
   }
 
@@ -334,7 +337,7 @@ class _AddPropertyFormState extends State<_AddPropertyForm> {
               ),
               child: const Text(
                 'Save Property',
-                style: TextStyle(fontSize: 18), // Set the font size as per your requirement
+                style: TextStyle(color : Colors.white,fontSize: 18), // Set the font size as per your requirement
               ),
             ),
 

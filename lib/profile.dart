@@ -67,7 +67,8 @@ class _ProfilePageState extends State<ProfilePage> {
         },
         child: Scaffold(
           appBar: AppBar(
-            title: Text('Profile'),
+            title: Text('Profile',style: TextStyle(color: Colors.white),),
+            iconTheme: IconThemeData(color: Colors.white),
             backgroundColor: Color(0xFF013c7e),
           ),
           body: Center(
@@ -117,7 +118,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     primary:
                         Color(0xFF013c7e), // Set the desired background color
                   ),
-                  child: Text(_user == null ? 'Sign In' : 'Sign Out'),
+                  child: Text(
+                    _user == null ? 'Sign In' : 'Sign Out',
+                    style: TextStyle(color: Colors.white),
+                  ),
+
                 ),
               ],
             ),
@@ -160,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           builder: (context) => AddPropertyPage()),
                     );
                   },
-                  label: Text('Add Property'),
+                  label: Text('Add Property',style: TextStyle(color: Colors.white),),
                   icon: Icon(Icons.add),
                   backgroundColor: Colors.green,
                 )
