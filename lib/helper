@@ -1,0 +1,31 @@
+drawer: Drawer(
+      child: ListView(
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.white, // Set the drawer header color to white
+            ),
+            child: Image.asset(
+              '/Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO.jpg', // Adjust the path accordingly
+              // fit: BoxFit.cover,
+            ),
+          ),
+          ListTile(
+            title: Text('Profile',style: TextStyle(color: Color(0xFF013c7e)),),
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            },
+          ),
+          ListTile(
+            title: Text('Settings',style: TextStyle(color: Color(0xFF013c7e)),),
+            onTap: () {
+              // Handle Settings navigation
+            },
+          ),
+        ],
+      ),
+    ),
