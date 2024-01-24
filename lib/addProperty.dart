@@ -15,16 +15,20 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Property',style: TextStyle(color: Colors.white),),
+        title: const Text('Add Property',
+          style: TextStyle(
+              color: Colors.white
+          ),
+        ),
         backgroundColor: const Color(0xFF013c7e),
-        iconTheme: IconThemeData(color: Colors.white),
-
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-
           onPressed: () {
             // Navigate to the profile page
-            Navigator.pushReplacementNamed(context, '/profile');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ProfilePage()),
+            );
           },
         ),
       ),
@@ -134,7 +138,15 @@ class _AddPropertyFormState extends State<_AddPropertyForm> {
   Widget _buildImagePickerButton(String buttonText, Function() onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(buttonText,style: TextStyle(color: Colors.white),),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xFF013c7e), // Set the background color to green
+        fixedSize: Size(200, 50), // Set the width and height as per your requirement
+      ),
+      child: Text(buttonText,
+        style: TextStyle(
+            color: Colors.white
+        ),
+      ),
     );
   }
 
@@ -242,9 +254,10 @@ class _AddPropertyFormState extends State<_AddPropertyForm> {
       String bathroom = selectedBathroom;
       String bedrooms = selectedBedroom;
       String propertyType = selectedpropertyType;
+      String documentId = title;
 
       // Save property to Firestore
-      await FirebaseFirestore.instance.collection('properties').add({
+      await FirebaseFirestore.instance.collection('properties').doc(documentId).set({
         'agentName': agentName,
         'agentContact': agentContact,
         'agentImageUrl': agentImageUrl,
@@ -337,17 +350,14 @@ class _AddPropertyFormState extends State<_AddPropertyForm> {
               ),
               child: const Text(
                 'Save Property',
-                style: TextStyle(color : Colors.white,fontSize: 18), // Set the font size as per your requirement
+                style: TextStyle(fontSize: 18,
+                  color: Colors.white,
+                ), // Set the font size as per your requirement
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 }
-
-
-
-

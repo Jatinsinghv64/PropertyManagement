@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-//import 'mapBox.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -42,11 +41,6 @@ class PropertyDetailsPage extends StatelessWidget {
       required this.agentName,
       required this.agentContact,
       required this.agentImageUrl,
-      // required this.imageUrl1,
-      // required this.imageUrl2,
-      // required this.imageUrl3,
-      // required this.imageUrl4,
-      // required this.imageUrl5,
       required this.imgUrls});
   @override
   Widget build(BuildContext context) {

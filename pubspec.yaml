@@ -72,7 +72,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - /Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO.jpg
+    - /Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO1.jpg
+    - /Users/jatinsingh/StudioProjects/property/assets/Images/AHBLOGO1.jpg
     - /Users/jatinsingh/StudioProjects/property/assets/Images/icon.jpg
 
 
