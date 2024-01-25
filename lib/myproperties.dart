@@ -17,6 +17,19 @@ class _MyPropertiesPageState extends State<MyPropertiesPage> {
       appBar: AppBar(
         backgroundColor: Color(0xFF013c7e),
         title: Text('My Properties'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.popUntil(context, ModalRoute.withName('/profile'));
+            } else {
+              // Handle the case when there are no routes to pop
+              // You might want to navigate to the profile page directly in this case
+              Navigator.pushReplacementNamed(context, '/profile');
+            }
+          },
+        ),
+
       ),
       body: FutureBuilder(
         future: _getUserProperties(),
@@ -127,9 +140,12 @@ class _MyPropertiesPageState extends State<MyPropertiesPage> {
           refreshCallback: refreshPropertyData, // Pass the callback
         ),
       ),
-    );
-    print('$documentId');
-
+    ).then((result) {
+      // Handle the result if needed
+      if (result != null) {
+        print('Result: $result');
+      }
+    });
   }
 
   void _deleteProperty(Map<String, dynamic> propertyData) {

@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundImage: NetworkImage(_user!.photoURL ?? ''),
+                backgroundImage: NetworkImage(_user!.photoURL ?? 'https://cdn-icons-png.flaticon.com/512/700/700674.png'),
               ),
               SizedBox(height: 20),
               Text(
@@ -85,56 +85,104 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 20),
               Text(
                 _user!.email ?? '',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 30),
+              const Divider(),
+              // const SizedBox(height: 10),
               // Add a button to navigate to MyPropertiesPage
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyPropertiesPage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF013c7e),
-                  // Set the desired background color
-                ),
-                child: Text(
-                  'My Properties',
-                  style: TextStyle(color: Colors.white),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyPropertiesPage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
+                    // Set the desired background color
+                  ),
+                  icon: Icon(
+                    Icons.home,
+                    color: Color(0xFF013c7e),
+                  ),
+                  label: Text(
+                    'My Properties',
+                    style: TextStyle(color: Color(0xFF013c7e), fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
+
+              // SizedBox(height: 5,),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddPropertyPage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
+                    // Set the desired background color
+                  ),
+                  icon: Icon(
+                    Icons.add,
+                    color: Color(0xFF013c7e),
+                  ),
+                  label: Text(
+                    'Add Property',
+                    style: TextStyle(color: Color(0xFF013c7e), fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
             ],
           )
               : Text(
             'Please sign in to Add property as an agent.',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 20),
+          // SizedBox(height: 10),
           // Sign-in and Sign-out button
-          ElevatedButton(
-            onPressed: () {
-              if (_user == null) {
-                _handleSignIn();
-              } else {
-                _handleSignOut();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Color(0xFF013c7e),
-              // Set the desired background color
-            ),
-            child: Text(
-              _user == null ? 'Sign In' : 'Sign Out',
-              style: TextStyle(color: Colors.white),
+          SizedBox(
+            height: 50,
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                if (_user == null) {
+                  _handleSignIn();
+                } else {
+                  _handleSignOut();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.white,
+                // Set the desired background color
+              ),
+              icon: Icon(
+                _user == null ? Icons.login : Icons.logout, // Change icons based on sign in/out state
+                color: Color(0xFF013c7e),
+              ),
+              label: Text(
+                _user == null ? 'Sign In' : 'Sign Out',
+                style: TextStyle(color: Color(0xFF013c7e), fontWeight: FontWeight.bold),
+              ),
             ),
           ),
+
         ],
       ),
     );
@@ -157,22 +205,22 @@ class _ProfilePageState extends State<ProfilePage> {
           backgroundColor: Color(0xFF013c7e),
         ),
         body: _bodyContent(),
-        floatingActionButton: _user != null
-            ? FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => AddPropertyPage()),
-            );
-          },
-          label: Text(
-            'Add Property',
-            style: TextStyle(color: Colors.white),
-          ),
-          icon: Icon(Icons.add),
-          backgroundColor: Colors.green,
-        )
-            : null,
+        //floatingActionButton: _user != null
+        //     ? FloatingActionButton.extended(
+        //   onPressed: () {
+        //     Navigator.pushReplacement(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => AddPropertyPage()),
+        //     );
+        //   },
+        //   label: Text(
+        //     'Add Property',
+        //     style: TextStyle(color: Colors.white),
+        //   ),
+        //   icon: Icon(Icons.add),
+        //   backgroundColor: Colors.green,
+        // )
+            //: null,
         // If the user is not signed in, hide the button
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:property/bottomnavigationBar.dart';
 import 'package:property/loading_screen.dart';
+import 'package:property/myproperties.dart';
 import 'package:property/profile.dart';
 import 'package:property/property_detail.dart';
 import 'package:property/propertycard.dart';
@@ -24,11 +25,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      home: LoadingScreen(),
       debugShowCheckedModeBanner: false,
       routes: {
         '/home': (context) => PropertyListScreen(),
         '/profile': (context) => ProfilePage(),
+        '/my_properties': (context) => MyPropertiesPage(),
       },
     );
   }
@@ -171,10 +173,10 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       appBar: AppBar(
         backgroundColor: Color(0xFF013c7e),
         title: Container(
-          padding: EdgeInsets.all(4.0),
+          padding: EdgeInsets.all(2.5),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(40.0),
           ),
           child: Row(
             children: [
@@ -189,7 +191,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Color(0xFF013c7e)),
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(40.0),
                     ),
                     child: Row(
                       children: [

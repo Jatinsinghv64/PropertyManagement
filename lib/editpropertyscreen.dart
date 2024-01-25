@@ -50,6 +50,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Property'),
+        backgroundColor: Color(0xFF013c7e),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
