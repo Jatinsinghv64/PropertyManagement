@@ -151,11 +151,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
             ],
           )
-              : Text(
-            'Please sign in to Add property as an agent.',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              : Row(
+            children: [
+              Icon(
+                Icons.person_2_outlined,
+                size: 40, // Adjust the size of the icon as needed
+                color: Color(0xFF013c7e),
+              ),
+              SizedBox(width: 10), // Add spacing between the icon and text
+              Text(
+                'Hello Guest!',
+                style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Color(0xFF013c7e)),
+              ),
+            ],
           ),
-          // SizedBox(height: 10),
+
+          SizedBox(height: 10),
           // Sign-in and Sign-out button
           SizedBox(
             height: 50,

@@ -12,6 +12,19 @@ class AuthenticationPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Login'),
         backgroundColor: Color(0xFF013c7e),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.popUntil(context, ModalRoute.withName('/profile'));
+            } else {
+              // Handle the case when there are no routes to pop
+              // You might want to navigate to the profile page directly in this case
+              Navigator.pushReplacementNamed(context, '/profile');
+            }
+          },
+        ),
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

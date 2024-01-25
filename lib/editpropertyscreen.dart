@@ -52,40 +52,48 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
         title: Text('Edit Property'),
         backgroundColor: Color(0xFF013c7e),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(labelText: 'Title'),
-            ),
-            TextFormField(
-              controller: _locationController,
-              decoration: InputDecoration(labelText: 'Location'),
-            ),
-            TextFormField(
-              controller: _agentNameController,
-              decoration: InputDecoration(labelText: 'agentName'),
-            ),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'description'),
-            ),
-            TextFormField(
-              controller: _propertySizeController,
-              decoration: InputDecoration(labelText: 'propertySize'),
-            ),
-            // Add other form fields as needed
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Save updates to Firebase
-                _saveUpdates();
-              },
-              child: Text('Save Updates'),
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+              TextFormField(
+                controller: _locationController,
+                decoration: InputDecoration(labelText: 'Location'),
+              ),
+              TextFormField(
+                controller: _agentNameController,
+                decoration: InputDecoration(labelText: 'agentName'),
+              ),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: null, // Allow unlimited lines
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  contentPadding: EdgeInsets.symmetric(vertical: 20.0), // Adjust the vertical padding as needed
+                ),
+              ),
+
+              TextFormField(
+                controller: _propertySizeController,
+                decoration: InputDecoration(labelText: 'propertySize'),
+              ),
+              // Add other form fields as needed
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // Save updates to Firebase
+                  _saveUpdates();
+                },
+                child: Text('Save Updates'),
+              ),
+            ],
+          ),
         ),
       ),
     );

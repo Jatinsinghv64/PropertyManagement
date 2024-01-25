@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:property/bottomnavigationBar.dart';
+import 'package:property/filterpage.dart';
 import 'package:property/loading_screen.dart';
 import 'package:property/myproperties.dart';
 import 'package:property/profile.dart';
@@ -102,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
-              label: 'Third',
+              label: 'Settings',
             ),
           ],
         ),
@@ -133,8 +134,10 @@ class PropertyListScreen extends StatefulWidget {
 }
 
 class _PropertyListScreenState extends State<PropertyListScreen> {
-  String? selectedPropertyType;
-  int? selectedBedrooms;
+  int? selectedPropertyType;
+  String? selectedBedrooms;
+  String? selectedLocation; // New filter for location
+
   late Stream<QuerySnapshot> _propertyStream;
   List<DocumentSnapshot> _properties = [];
   String noResultsMessage = '';
@@ -152,20 +155,29 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     Query filteredQuery = propertiesCollection;
 
     if (selectedPropertyType != null) {
-      filteredQuery = filteredQuery
-          .where('propertyType', isEqualTo: selectedPropertyType);
+      filteredQuery = filteredQuery.where('propertyType', isEqualTo: selectedPropertyType);
     }
 
     if (selectedBedrooms != null) {
-      filteredQuery = filteredQuery
-          .where('bedrooms', isEqualTo: selectedBedrooms);
+      filteredQuery = filteredQuery.where('title', isEqualTo: selectedBedrooms);
     }
+
+    if (selectedLocation != null) {
+      // Update this line to use isEqualTo for exact matching
+      filteredQuery = filteredQuery.where('location', isEqualTo: selectedLocation);
+    }
+
+    print('Filtered Query: ${filteredQuery.toString()}');
+    print('Property Type Filter: $selectedPropertyType');
+    print('Bedrooms Filter: $selectedBedrooms');
+    print('Location Filter: $selectedLocation');
 
     _propertyStream = filteredQuery.snapshots();
 
-    // Add this line to force the rebuild of the widget tree
     setState(() {});
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -215,11 +227,29 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.filter_list, color: Color(0xFF013c7e)),
-                onPressed: () {
-                  _showFilterDialog(context);
+                icon: Icon(Icons.filter_list),
+                color: Color(0xFF013c7e),
+                onPressed: () async {
+                  final filters = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FilterPage(
+                        onFiltersApplied: (filters) {
+                          setState(() {
+                            selectedLocation = filters['location'];
+                          });
+                          _updatePropertyStream();
+                        },
+                        initialLocation: selectedLocation,
+                      ),
+                    ),
+                  );
+
+                  // Handle any additional logic after filters are applied if needed
                 },
               ),
+
+
             ],
           ),
         ),
@@ -255,85 +285,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     );
   }
 
-  void _showFilterDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Filter Properties'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButton<String>(
-                hint: Text('Select Property Type'),
-                value: selectedPropertyType,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedPropertyType = newValue;
-                  });
-                },
-                items: <String>['Townhouse', 'Villa', 'Penthouse']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              DropdownButton<int>(
-                hint: Text('Select Number of Bedrooms'),
-                value: selectedBedrooms,
-                onChanged: (int? newValue) {
-                  setState(() {
-                    selectedBedrooms = newValue;
-                  });
-                },
-                items: <int>[1, 2, 3, 4, 5]
-                    .map<DropdownMenuItem<int>>((int value) {
-                  return DropdownMenuItem<int>(
-                    value: value,
-                    child: Text(value.toString()),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _applyFilters();
-                Navigator.of(context).pop();
-              },
-              child: Text('Apply'),
-            ),
-            TextButton(
-              onPressed: () {
-                _clearFilters();
-                Navigator.of(context).pop();
-              },
-              child: Text('Clear'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
-  void _applyFilters() {
-    _updatePropertyStream();
-  }
-
-  void _clearFilters() {
-    selectedPropertyType = null;
-    selectedBedrooms = null;
-    _updatePropertyStream();
-  }
 }
 
 class ThirdPage extends StatelessWidget {
@@ -459,8 +411,6 @@ class PropertySearchDelegate extends SearchDelegate<String> {
       },
     );
   }
-
-
 
 
   @override
