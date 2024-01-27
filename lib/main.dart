@@ -10,6 +10,7 @@ import 'package:property/profile.dart';
 import 'package:property/property_detail.dart';
 import 'package:property/propertycard.dart';
 import 'firebase_options.dart';
+import 'package:badges/badges.dart';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -134,8 +135,12 @@ class PropertyListScreen extends StatefulWidget {
 }
 
 class _PropertyListScreenState extends State<PropertyListScreen> {
-  int? selectedPropertyType;
+  bool showFilterBadge = false;
+  int filterCount = 0;
+
+  String? selectedPropertyType;
   String? selectedBedrooms;
+  String? selectedBathrooms;
   String? selectedLocation; // New filter for location
 
   late Stream<QuerySnapshot> _propertyStream;
@@ -150,34 +155,39 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
 
   void _updatePropertyStream() {
     CollectionReference propertiesCollection =
-    FirebaseFirestore.instance.collection('properties');
+        FirebaseFirestore.instance.collection('properties');
 
     Query filteredQuery = propertiesCollection;
 
     if (selectedPropertyType != null) {
-      filteredQuery = filteredQuery.where('propertyType', isEqualTo: selectedPropertyType);
+      filteredQuery =
+          filteredQuery.where('propertyType', isEqualTo: selectedPropertyType);
     }
 
     if (selectedBedrooms != null) {
-      filteredQuery = filteredQuery.where('title', isEqualTo: selectedBedrooms);
+      filteredQuery =
+          filteredQuery.where('bedrooms', isEqualTo: selectedBedrooms);
+    }
+
+    if (selectedBathrooms != null) {
+      filteredQuery =
+          filteredQuery.where('bathrooms', isEqualTo: selectedBathrooms);
     }
 
     if (selectedLocation != null) {
-      // Update this line to use isEqualTo for exact matching
-      filteredQuery = filteredQuery.where('location', isEqualTo: selectedLocation);
+      filteredQuery =
+          filteredQuery.where('location', isEqualTo: selectedLocation);
     }
-
-    print('Filtered Query: ${filteredQuery.toString()}');
-    print('Property Type Filter: $selectedPropertyType');
-    print('Bedrooms Filter: $selectedBedrooms');
-    print('Location Filter: $selectedLocation');
 
     _propertyStream = filteredQuery.snapshots();
 
-    setState(() {});
+    setState(() {
+      showFilterBadge = selectedLocation != null ||
+          selectedPropertyType != null ||
+          selectedBedrooms != null ||
+          selectedBathrooms != null;
+    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +195,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       appBar: AppBar(
         backgroundColor: Color(0xFF013c7e),
         title: Container(
-          padding: EdgeInsets.all(2.5),
+          padding: EdgeInsets.all(1.5),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(40.0),
@@ -208,7 +218,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                     child: Row(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(11.0),
                           child: Icon(
                             Icons.search,
                             color: Color(0xFF013c7e),
@@ -226,30 +236,51 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                   ),
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.filter_list),
-                color: Color(0xFF013c7e),
-                onPressed: () async {
-                  final filters = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FilterPage(
-                        onFiltersApplied: (filters) {
-                          setState(() {
-                            selectedLocation = filters['location'];
-                          });
-                          _updatePropertyStream();
-                        },
-                        initialLocation: selectedLocation,
+              // Filter button with badge
+              Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.filter_list),
+                    color: Color(0xFF013c7e),
+                    onPressed: () async {
+                      final filters = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FilterPage(
+                            onFiltersApplied: (filters) {
+                              setState(() {
+                                selectedLocation = filters['location'];
+                                selectedBedrooms = filters['bedrooms'];
+                                selectedBathrooms = filters['bathrooms'];
+                                filterCount =
+                                    (selectedLocation != null ? 1 : 0) +
+                                        (selectedBedrooms != null ? 1 : 0) +
+                                        (selectedBathrooms != null ? 1 : 0);
+                              });
+                              _updatePropertyStream();
+                            },
+                            initialLocation: selectedLocation,
+                            initialBedrooms: selectedBedrooms,
+                            initialBathrooms: selectedBathrooms,
+                          ),
+                        ),
+                      );
+
+                      // Handle any additional logic after filters are applied if needed
+                    },
+                  ),
+                  if (filterCount > 0)
+                    CircleAvatar(
+                      radius: 8,
+                      backgroundColor: Colors.red,
+                      child: Text(
+                        filterCount.toString(),
+                        style: TextStyle(fontSize: 10, color: Colors.white),
                       ),
                     ),
-                  );
-
-                  // Handle any additional logic after filters are applied if needed
-                },
+                ],
               ),
-
-
             ],
           ),
         ),
@@ -261,16 +292,17 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             _properties = snapshot.data!.docs;
             return _properties.isNotEmpty
                 ? ListView.builder(
-              itemCount: _properties.length,
-              itemBuilder: (BuildContext context, int index) {
-                var property = _properties[index];
-                return PropertyCard(property: property);
-              },
-            )
+                    itemCount: _properties.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var property = _properties[index];
+                      return PropertyCard(property: property);
+                    },
+                  )
                 : Center(
-              child: Text(
-                  noResultsMessage.isEmpty ? 'No properties found' : noResultsMessage),
-            );
+                    child: Text(noResultsMessage.isEmpty
+                        ? 'No properties found'
+                        : noResultsMessage),
+                  );
           } else if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
@@ -284,8 +316,6 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       ),
     );
   }
-
-
 }
 
 class ThirdPage extends StatelessWidget {
@@ -304,7 +334,7 @@ class ThirdPage extends StatelessWidget {
 
 class PropertySearchDelegate extends SearchDelegate<String> {
   final Stream<QuerySnapshot> propertyStream =
-  FirebaseFirestore.instance.collection('properties').snapshots();
+      FirebaseFirestore.instance.collection('properties').snapshots();
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -337,14 +367,14 @@ class PropertySearchDelegate extends SearchDelegate<String> {
           final List<DocumentSnapshot> properties = snapshot.data!.docs;
           final List<DocumentSnapshot> searchResults = properties
               .where((property) =>
-          property['title']
-              .toString()
-              .toLowerCase()
-              .contains(query.toLowerCase()) ||
-              property['location']
-                  .toString()
-                  .toLowerCase()
-                  .contains(query.toLowerCase()))
+                  property['title']
+                      .toString()
+                      .toLowerCase()
+                      .contains(query.toLowerCase()) ||
+                  property['location']
+                      .toString()
+                      .toLowerCase()
+                      .contains(query.toLowerCase()))
               .toList();
 
           return ListView.builder(
@@ -411,7 +441,6 @@ class PropertySearchDelegate extends SearchDelegate<String> {
       },
     );
   }
-
 
   @override
   Widget buildSuggestions(BuildContext context) {

@@ -1,13 +1,16 @@
-// FilterPage.dart
 import 'package:flutter/material.dart';
 
 class FilterPage extends StatefulWidget {
   final Function(Map<String, String?>) onFiltersApplied;
   final String? initialLocation;
+  final String? initialBedrooms;
+  final String? initialBathrooms;
 
   const FilterPage({
     required this.onFiltersApplied,
     this.initialLocation,
+    this.initialBedrooms,
+    this.initialBathrooms,
   });
 
   @override
@@ -16,24 +19,31 @@ class FilterPage extends StatefulWidget {
 
 class _FilterPageState extends State<FilterPage> {
   String? selectedLocation;
+  String? selectedBedrooms;
+  String? selectedBathrooms;
 
   @override
   void initState() {
     super.initState();
     selectedLocation = widget.initialLocation;
+    selectedBedrooms = widget.initialBedrooms;
+    selectedBathrooms = widget.initialBathrooms;
   }
 
   void _resetFilters() {
     setState(() {
-      selectedLocation = null; // Clear all filters
+      selectedLocation = null;
+      selectedBedrooms = null;
+      selectedBathrooms = null;
     });
-    _updatePropertyStream(); // Fetch all properties
+    _updatePropertyStream();
   }
 
   void _updatePropertyStream() {
-    // Call this method to update the property stream and fetch all properties
     widget.onFiltersApplied({
       'location': selectedLocation,
+      'bedrooms': selectedBedrooms,
+      'bathrooms': selectedBathrooms,
     });
   }
 
@@ -49,7 +59,6 @@ class _FilterPageState extends State<FilterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Dropdown for location
             DropdownButton<String>(
               value: selectedLocation,
               onChanged: (value) {
@@ -57,7 +66,7 @@ class _FilterPageState extends State<FilterPage> {
                   selectedLocation = value;
                 });
               },
-              items: ['Doha']
+              items: ['Doha', 'Al muntazah', 'Manhattan']
                   .map((location) {
                 return DropdownMenuItem<String>(
                   value: location,
@@ -68,12 +77,45 @@ class _FilterPageState extends State<FilterPage> {
               hint: Text('Select Location'),
             ),
             SizedBox(height: 20),
-            // Apply Filters button
+            DropdownButton<String>(
+              value: selectedBedrooms,
+              onChanged: (value) {
+                setState(() {
+                  selectedBedrooms = value;
+                });
+              },
+              items: ['1', '2', '3', '4', '5+']
+                  .map((bedroom) {
+                return DropdownMenuItem<String>(
+                  value: bedroom,
+                  child: Text('$bedroom Bedrooms'),
+                );
+              })
+                  .toList(),
+              hint: Text('Select Bedrooms'),
+            ),
+            SizedBox(height: 20),
+            DropdownButton<String>(
+              value: selectedBathrooms,
+              onChanged: (value) {
+                setState(() {
+                  selectedBathrooms = value;
+                });
+              },
+              items: ['1', '2', '3', '4', '5+']
+                  .map((bathroom) {
+                return DropdownMenuItem<String>(
+                  value: bathroom,
+                  child: Text('$bathroom Bathrooms'),
+                );
+              })
+                  .toList(),
+              hint: Text('Select Bathrooms'),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                widget.onFiltersApplied({
-                  'location': selectedLocation,
-                });
+                _updatePropertyStream();
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
@@ -85,7 +127,6 @@ class _FilterPageState extends State<FilterPage> {
               ),
             ),
             SizedBox(height: 10),
-            // Reset Filters button
             TextButton(
               onPressed: _resetFilters,
               child: Text(

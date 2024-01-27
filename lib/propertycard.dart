@@ -52,6 +52,7 @@ class PropertyCard extends StatelessWidget {
                 height: 350.0,
                 enableInfiniteScroll: true,
                 autoPlay: true,
+                viewportFraction: 1.0, // Set viewportFraction to 1.0 for edge-to-edge images
               ),
               items: imgUrls.map((imageUrl) {
                 return Builder(
@@ -64,10 +65,40 @@ class PropertyCard extends StatelessWidget {
                 );
               }).toList(),
             ),
+
             ListTile(
-              title: Text(property['title']),
-              subtitle: Text(property['location']),
+              title: Text(property['title'],style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xFF013c7e),fontSize: 18)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, color: Color(0xFF013c7e)),
+                      SizedBox(width: 4),
+                      Text(property['location']),
+                    ],
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.king_bed, color: Color(0xFF013c7e)),
+                      SizedBox(width: 4),
+                      Text(property['bedrooms']),
+                      SizedBox(width: 16),
+                      Icon(Icons.square_foot, color: Color(0xFF013c7e)),
+                      SizedBox(width: 4),
+                      Text(property['propertySize']),
+                      SizedBox(width: 16),
+                      Icon(Icons.bathtub, color: Color(0xFF013c7e)),
+                      SizedBox(width: 4),
+                      Text(property['bathrooms']),
+                    ],
+                  ),
+                ],
+              ),
             ),
+
+
           ],
         ),
       ),
