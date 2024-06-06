@@ -18,7 +18,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   Future<void> _loadData() async {
     // Simulate some loading tasks
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 1));
 
     // Navigate to the home screen after the loading is complete
     Navigator.pushReplacement(

@@ -21,16 +21,16 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           ),
         ),
         backgroundColor: const Color(0xFF013c7e),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigate to the profile page
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => ProfilePage()),
-            );
-          },
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     // Navigate to the profile page
+        //     Navigator.pushReplacement(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => ProfilePage()),
+        //     );
+        //   },
+        // ),
       ),
 
       body: Padding(

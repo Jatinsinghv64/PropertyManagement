@@ -15,6 +15,7 @@ class PropertyCard extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => PropertyDetailsPage(
             title: property['title'],
+            rent: property['rent'],
             description: property['description'],
             imgUrls: property['imgUrls'],
             location: property['location'],
@@ -67,10 +68,25 @@ class PropertyCard extends StatelessWidget {
             ),
 
             ListTile(
-              title: Text(property['title'],style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xFF013c7e),fontSize: 18)),
+              title: Text(
+                '${property['price'].toString()} Riyals/year',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF013c7e),
+                  fontSize: 18,
+                ),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      // Icon(Icons.location_on, color: Color(0xFF013c7e)),
+                      SizedBox(width: 2),
+                      Text(property['propertyType']),
+                    ],
+                  ),
+                  SizedBox(height: 4),
                   Row(
                     children: [
                       Icon(Icons.location_on, color: Color(0xFF013c7e)),
@@ -79,6 +95,7 @@ class PropertyCard extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 4),
+
                   Row(
                     children: [
                       Icon(Icons.king_bed, color: Color(0xFF013c7e)),

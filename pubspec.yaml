@@ -50,6 +50,8 @@ dependencies:
   shared_preferences: ^2.2.2
   badges: ^3.1.2
   photo_view: ^0.14.0
+  flutter_typeahead: ^5.1.0
+  autocomplete_textfield: ^2.0.1
 
 
 

@@ -26,6 +26,7 @@ class PropertyDetailsPage extends StatelessWidget {
   final String developedBy;
   final String amenities;
   final String uniquePropertyId;
+  final int rent;
   final List<dynamic> imgUrls;
   PropertyDetailsPage(
       {required this.title,
@@ -44,6 +45,7 @@ class PropertyDetailsPage extends StatelessWidget {
       required this.agentName,
       required this.agentContact,
       required this.agentImageUrl,
+        required this.rent,
       required this.imgUrls});
   @override
   Widget build(BuildContext context) {
@@ -136,119 +138,144 @@ class PropertyDetailsPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 10),
                   Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Color(0xFF013c7e)),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        buildRow(propertyType, 'Property Type', 12),
-                        buildRow(bedrooms, 'Bedrooms', 12),
-                        buildRow(availableFrom, 'Available From', 12),
-                        buildRow(propertySize, 'Property Size', 12),
-                        buildRow(bathrooms, 'Bathroom', 12),
-                        buildRow(agentDetails, 'Agent Details', 12),
-                        buildRow(facilities, 'Facilities', 12),
-                        buildRow(developedBy, 'Developed By', 12),
-                        // Add more rows as needed
-                      ],
+                    width: double.infinity,
+                    margin: EdgeInsets.all(16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Card(
+                        elevation: 5,
+                        // shape: RoundedRectangleBorder(
+                        //   borderRadius: BorderRadius.circular(10.0),
+                        //   side: BorderSide(color: Color(0xFF013c7e)),
+                        // ),
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              buildRow(propertyType, 'Property Type', Icons.home, 13),
+                              buildRow(bedrooms, 'Bedrooms', Icons.king_bed, 13),
+                              buildRow(availableFrom, 'Available From', Icons.date_range, 13),
+                              buildRow(propertySize, 'Property Size', Icons.aspect_ratio, 13),
+                              buildRow(bathrooms, 'Bathroom', Icons.bathtub, 13),
+                              buildRow(developedBy, 'Developed By', Icons.business, 13),
+                              // Add more rows as needed
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
 
 
+
+
+
+
+
                   SizedBox(
-                    height: 16,
+                    height: 08,
                   ),
                   Container(
                     padding: EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Description',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 19,
-                            color: Color(0xFF013c7e),
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFF013c7e)),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          child: Text(
-                            description,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF013c7e),
+                        // Text(
+                        //   'Description',
+                        //   style: TextStyle(
+                        //     fontWeight: FontWeight.bold,
+                        //     fontSize: 19,
+                        //     color: Color(0xFF013c7e),
+                        //   ),
+                        // ),
+                        SizedBox(height: 10),
+                        Card(
+                          elevation: 5, // Adjust the elevation as needed
+                          // shape: RoundedRectangleBorder(
+                          //   borderRadius: BorderRadius.circular(8),
+                          //   side: BorderSide(color: Color(0xFF013c7e), width: 2),
+                          // ),
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Description',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 19,
+                                    color: Color(0xFF013c7e),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  description,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF013c7e),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Amenities',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 19,
-                            color: Color(0xFF013c7e),
+                        SizedBox(height: 12),
+
+                        Card(
+                          elevation: 5, // You can adjust the elevation as needed
+                          // shape: RoundedRectangleBorder(
+                          //   borderRadius: BorderRadius.circular(8),
+                          //   side: BorderSide(color: Color(0xFF013c7e), width: 2),
+                          // ),
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Amenities',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 19,
+                                    color: Color(0xFF013c7e),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                amenityTile('Furnished', Icons.chair),
+                                amenityTile('Balcony', Icons.balcony),
+                                amenityTile('Built in Wardrobes', Icons.check),
+                                amenityTile('Central A/C', Icons.ac_unit),
+                                amenityTile("Children's Play Area", Icons.sports_basketball),
+                                amenityTile('Concierge', Icons.check),
+                                amenityTile('Covered Parking', Icons.car_repair),
+                                amenityTile('Kitchen Appliances', Icons.soup_kitchen),
+                                amenityTile('Lobby in Building', Icons.maps_home_work_rounded),
+                                amenityTile('Security', Icons.security),
+                                amenityTile('Shared Gym', Icons.sports_gymnastics),
+                                amenityTile('Shared Pool', Icons.pool),
+                                amenityTile('View of Landmark', Icons.check),
+                                amenityTile('View of Water', Icons.water),
+                                amenityTile('Walk-in Closet', Icons.kitchen_sharp),
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFF013c7e)),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              amenityTile('Furnished', Icons.chair),
-                              amenityTile('Balcony', Icons.balcony),
-                              amenityTile('Built in Wardrobes', Icons.check),
-                              amenityTile('Central A/C', Icons.ac_unit),
-                              amenityTile("Children's Play Area",
-                                  Icons.sports_basketball),
-                              amenityTile('Concierge', Icons.check),
-                              amenityTile('Covered Parking', Icons.car_repair),
-                              amenityTile(
-                                  'Kitchen Appliances', Icons.soup_kitchen),
-                              amenityTile('Lobby in Building',
-                                  Icons.maps_home_work_rounded),
-                              amenityTile('Security', Icons.security),
-                              amenityTile(
-                                  'Shared Gym', Icons.sports_gymnastics),
-                              amenityTile('Shared Pool', Icons.pool),
-                              amenityTile('View of Landmark', Icons.check),
-                              amenityTile('View of Water', Icons.water),
-                              amenityTile(
-                                  'Walk-in Closet', Icons.kitchen_sharp),
-                            ],
-                          ),
-                        ),
+                        )
+
+
                       ],
                     ),
                   ),
                   SizedBox(
-                    height: 16,
+                    height: 10,
                   ),
-                  Text(
-                    'Agent',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF013c7e),
-                    ),
-                  ),
+
                   AgentDetailsBox(
+
                     agentName: agentName, // Replace with actual agent name
                     agentContact:
                         agentContact, // Replace with actual agent contact details
@@ -262,21 +289,31 @@ class PropertyDetailsPage extends StatelessWidget {
       ),
     );
   }
-  Widget buildRow(String value, String label, double fontSize) {
+  Widget buildRow(String value, String label, IconData iconData, double fontSize) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            flex: 1,
-            child: Text(
-              label + ':',
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+            flex: 2,
+            child: Row(
+              children: [
+                Icon(
+                  iconData,
+                  color: Color(0xFF013c7e),
+                  size: 20, // Adjust the size as needed
+                ),
+                SizedBox(width: 8), // Add some spacing between icon and label
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -294,6 +331,7 @@ class PropertyDetailsPage extends StatelessWidget {
       ),
     );
   }
+
 }
 
 Widget amenityTile(String amenity, IconData icon) {
@@ -306,7 +344,7 @@ Widget amenityTile(String amenity, IconData icon) {
     title: Text(
       amenity,
       style: TextStyle(
-        fontSize: 20,
+        fontSize: 16,
         color: Color(0xFF013c7e),
       ),
     ),
@@ -419,66 +457,88 @@ void _showFullScreenImage(BuildContext context, List<dynamic> imgUrls, String im
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       margin: EdgeInsets.all(16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Color(0xFF013c7e), width: 2.0),
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Circular Image
-          CircleAvatar(
-            radius: 50,
-            backgroundImage:
-                NetworkImage(agentImageUrl), // Add actual agent image URL
-          ),
-          SizedBox(height: 16),
-
-          // Agent Name
-          Text(
-            agentName,
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF013c7e)),
-          ),
-          SizedBox(height: 8),
-
-          // Agent Contact Details
-          Text(
-            agentContact,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-
-          // Call Agent Button
-          SizedBox(height: 16),
-          Align(
-            alignment: Alignment.center,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                _callAgent(agentContact);
-              },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.green, // Set button color to green
-                padding: EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 16), // Set button padding
-              ),
-              icon: Icon(Icons.phone, size: 24), // Add phone icon
-              label: Text(
-                'Call Agent',
+      child: Card(
+        elevation: 5.0,
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.circular(12.0),
+        //   side: BorderSide(color: Color(0xFF013c7e), width: 2.0),
+        // ),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // "Agent" text on the top left
+              Text(
+                'Agent',
                 style: TextStyle(
-                  fontSize: 22, // Set button text size
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF013c7e),
                 ),
               ),
-            ),
+              SizedBox(height: 16),
+              // Centered details
+              Center(
+                child: Column(
+                  children: [
+                    // Circular Image
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(agentImageUrl),
+                    ),
+                    SizedBox(height: 16),
+                    // Agent Name
+                    Text(
+                      agentName,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF013c7e),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    // Agent Contact Details
+                    Text(
+                      agentContact,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    // Call Agent Button
+                    SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          _callAgent(agentContact);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                        ),
+                        icon: Icon(Icons.phone, size: 24),
+                        label: Text(
+                          'Call Agent',
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
+
+
 }

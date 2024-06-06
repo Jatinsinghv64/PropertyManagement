@@ -2,7 +2,6 @@ import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:property/bottomnavigationBar.dart';
 import 'package:property/filterpage.dart';
 import 'package:property/loading_screen.dart';
 import 'package:property/myproperties.dart';
@@ -10,10 +9,7 @@ import 'package:property/profile.dart';
 import 'package:property/property_detail.dart';
 import 'package:property/propertycard.dart';
 import 'firebase_options.dart';
-import 'package:badges/badges.dart';
-
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +26,7 @@ class MyApp extends StatelessWidget {
       home: LoadingScreen(),
       debugShowCheckedModeBanner: false,
       routes: {
-        '/home': (context) => PropertyListScreen(),
+        '/home': (context) => MyHomePage(),
         '/profile': (context) => ProfilePage(),
         '/my_properties': (context) => MyPropertiesPage(),
       },
@@ -39,52 +35,43 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  final List<Widget> bottomBarPages = [
+    PropertyListScreen(),
+    ProfilePage(),
+    MyPropertiesPage(), // Assuming MyPropertiesPage exists
+  ];
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 0;
+  final List<Widget> bottomBarPages = [
+    PropertyListScreen(),
+    ProfilePage(),
+    MyPropertiesPage(), // Assuming MyPropertiesPage exists
+  ];
+
+  final int initialIndex = 0; // Set the initial index for the bottom bar
+
+  int _currentIndex = 0; // Use a state variable for current index
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (_currentIndex != 0) {
+        if (_currentIndex > 0) {
           setState(() {
-            _currentIndex = 0;
+            _currentIndex--;
           });
-          return false;
+          return false; // Prevent app from closing on bottom bar pages
         } else {
-          return true;
+          return true; // Allow exiting the app on other pages
         }
       },
       child: Scaffold(
         body: IndexedStack(
           index: _currentIndex,
-          children: [
-            Navigator(
-              onGenerateRoute: (settings) {
-                return MaterialPageRoute(
-                  builder: (context) => PropertyListScreen(),
-                );
-              },
-            ),
-            Navigator(
-              onGenerateRoute: (settings) {
-                return MaterialPageRoute(
-                  builder: (context) => ProfilePage(),
-                );
-              },
-            ),
-            Navigator(
-              onGenerateRoute: (settings) {
-                return MaterialPageRoute(
-                  builder: (context) => ThirdPage(),
-                );
-              },
-            ),
-          ],
+          children: bottomBarPages,
         ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
@@ -104,9 +91,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
-              label: 'Settings',
+              label:
+                  'Settings', // Assuming MyPropertiesPage represents settings
             ),
           ],
+          selectedItemColor: Color(0xFF013c7e),
         ),
       ),
     );
@@ -130,18 +119,30 @@ class AuthenticationWrapper extends StatelessWidget {
 }
 
 class PropertyListScreen extends StatefulWidget {
+  final Map<String, dynamic>? filters; // Make filters nullable
+
+  PropertyListScreen({this.filters});
   @override
   _PropertyListScreenState createState() => _PropertyListScreenState();
 }
 
 class _PropertyListScreenState extends State<PropertyListScreen> {
+  late TextEditingController minPriceController;
+  late TextEditingController maxPriceController;
+  bool _priceSliderChanged = false;
+  bool _filtersApplied = true;
   bool showFilterBadge = false;
   int filterCount = 0;
-
   String? selectedPropertyType;
   String? selectedBedrooms;
   String? selectedBathrooms;
-  String? selectedLocation; // New filter for location
+  String? selectedLocation;
+  double? minPrice;
+  String? _selectedSortOption;
+  double? maxPrice;
+  bool _sliderChanged = false;
+  late ValueNotifier<bool> priceSliderChangedNotifier;
+  late StreamController<QuerySnapshot> _streamController;
 
   late Stream<QuerySnapshot> _propertyStream;
   List<DocumentSnapshot> _properties = [];
@@ -150,6 +151,9 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   @override
   void initState() {
     super.initState();
+    _streamController = StreamController<QuerySnapshot>();
+    _propertyStream = _streamController.stream;
+    priceSliderChangedNotifier = ValueNotifier<bool>(_priceSliderChanged);
     _updatePropertyStream();
   }
 
@@ -179,14 +183,47 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
           filteredQuery.where('location', isEqualTo: selectedLocation);
     }
 
+    // Apply price range filter
+    filteredQuery = filteredQuery
+        .where('price', isGreaterThanOrEqualTo: minPrice)
+        .where('price', isLessThanOrEqualTo: maxPrice);
+
+    print("Filters: "
+        "Location: $selectedLocation, "
+        "Property Type: $selectedPropertyType, "
+        "Bedrooms: $selectedBedrooms, "
+        "Bathrooms: $selectedBathrooms, "
+        "Min Price: $minPrice, "
+        "Max Price: $maxPrice");
+
     _propertyStream = filteredQuery.snapshots();
 
     setState(() {
-      showFilterBadge = selectedLocation != null ||
-          selectedPropertyType != null ||
-          selectedBedrooms != null ||
-          selectedBathrooms != null;
+      showFilterBadge = (_sliderChanged &&
+              (selectedLocation != null ||
+                  selectedPropertyType != null ||
+                  selectedBedrooms != null ||
+                  selectedBathrooms != null ||
+                  (minPrice != null && minPrice != 0) ||
+                  (maxPrice != null && maxPrice != 10000))) &&
+          _filtersApplied;
+
+      // Include the notifier in the condition
+      filterCount = (selectedLocation != null ? 1 : 0) +
+          (selectedPropertyType != null ? 1 : 0) +
+          (selectedBedrooms != null ? 1 : 0) +
+          (selectedBathrooms != null ? 1 : 0) +
+          ((minPrice != null && minPrice != 0) ||
+                  (maxPrice != null && maxPrice != 10000)
+              ? 1
+              : 0);
     });
+  }
+
+  @override
+  void dispose() {
+    _streamController.close();
+    super.dispose();
   }
 
   @override
@@ -200,6 +237,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(40.0),
           ),
+
           child: Row(
             children: [
               Expanded(
@@ -241,7 +279,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                 alignment: Alignment.topRight,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.filter_list),
+                    icon: Icon(Icons.filter_alt),
                     color: Color(0xFF013c7e),
                     onPressed: () async {
                       final filters = await Navigator.push(
@@ -251,18 +289,24 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                             onFiltersApplied: (filters) {
                               setState(() {
                                 selectedLocation = filters['location'];
+                                selectedPropertyType = filters['propertyType'];
                                 selectedBedrooms = filters['bedrooms'];
                                 selectedBathrooms = filters['bathrooms'];
-                                filterCount =
-                                    (selectedLocation != null ? 1 : 0) +
-                                        (selectedBedrooms != null ? 1 : 0) +
-                                        (selectedBathrooms != null ? 1 : 0);
+                                minPrice =
+                                    filters['minPrice']?.toDouble() ?? 0.0;
+                                maxPrice =
+                                    filters['maxPrice']?.toDouble() ?? 100.0;
                               });
                               _updatePropertyStream();
                             },
+                            priceSliderChangedNotifier:
+                                priceSliderChangedNotifier,
                             initialLocation: selectedLocation,
                             initialBedrooms: selectedBedrooms,
                             initialBathrooms: selectedBathrooms,
+                            initialPropertyType: selectedPropertyType,
+                            initialMinPrice: minPrice?.toInt(),
+                            initialMaxPrice: maxPrice?.toInt(),
                           ),
                         ),
                       );
@@ -324,6 +368,7 @@ class ThirdPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Third Page'),
+        backgroundColor: Color(0xFF013c7e),
       ),
       body: Center(
         child: Text('Third Page'),
@@ -405,6 +450,7 @@ class PropertySearchDelegate extends SearchDelegate<String> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PropertyDetailsPage(
+                        rent: property['rent'],
                         title: property['title'],
                         description: property['description'],
                         imgUrls: property['imgUrls'],

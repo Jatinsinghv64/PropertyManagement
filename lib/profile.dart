@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:property/addProperty.dart';
 import 'package:property/authentication.dart';
 import 'package:property/myproperties.dart';
-import 'main.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -13,7 +11,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+
 
   User? _user;
 
@@ -36,19 +34,17 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       await Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AuthenticationPage()),
+        MaterialPageRoute(builder: (context) => LoginPage()
+        ), // Navigate to the screen with bottom navigation
       );
 
-      // Reset the navigation stack
-      Navigator.popUntil(context, ModalRoute.withName('/'));
+      // Add setState here to trigger a rebuild after navigation
+      setState(() {
+        // Update state variables or perform any necessary actions after navigation
+      });
 
-      // Push the MyPropertiesPage after signing in
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MyPropertiesPage()),
-      );
     } catch (error) {
-      print("Error signing in: $error");
+      // Handle errors
     }
   }
 
@@ -92,14 +88,13 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 30),
               const Divider(),
-              // const SizedBox(height: 10),
-              // Add a button to navigate to MyPropertiesPage
+
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MyPropertiesPage(),
@@ -127,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 50,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => AddPropertyPage(),
@@ -216,23 +211,6 @@ class _ProfilePageState extends State<ProfilePage> {
           backgroundColor: Color(0xFF013c7e),
         ),
         body: _bodyContent(),
-        //floatingActionButton: _user != null
-        //     ? FloatingActionButton.extended(
-        //   onPressed: () {
-        //     Navigator.pushReplacement(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => AddPropertyPage()),
-        //     );
-        //   },
-        //   label: Text(
-        //     'Add Property',
-        //     style: TextStyle(color: Colors.white),
-        //   ),
-        //   icon: Icon(Icons.add),
-        //   backgroundColor: Colors.green,
-        // )
-            //: null,
-        // If the user is not signed in, hide the button
       ),
     );
   }
